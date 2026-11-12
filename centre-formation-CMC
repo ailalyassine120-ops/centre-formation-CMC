@@ -1,0 +1,111 @@
+DROP DATABASE IF EXISTS db_CMC;
+CREATE DATABASE IF NOT EXISTS db_CMC;
+USE db_CMC;
+
+CREATE TABLE Role(
+idRole INT AUTO_INCREMENT PRIMARY KEY,
+libelle VARCHAR(50)
+);
+
+CREATE TABLE Utilisateur(
+idUtilisateur INT AUTO_INCREMENT PRIMARY KEY,
+nom VARCHAR(50),
+prenom VARCHAR(50),
+email VARCHAR(100),
+telephone VARCHAR(20),
+motDePasse VARCHAR(50),
+statut VARCHAR(50),
+idRole INT,
+FOREIGN KEY (idRole) REFERENCES Role(idRole)
+);
+
+CREATE TABLE Groupe(
+idGroupe INT AUTO_INCREMENT PRIMARY KEY,
+codeGroupe VARCHAR(50),
+nom VARCHAR(50),
+filiere VARCHAR(50),
+annee VARCHAR(50),
+capacite INT
+);
+
+CREATE TABLE Stagiaire(
+idUtilisateur INT PRIMARY KEY,
+numInscription VARCHAR(50),
+dateNaissance DATE,
+idGroupe INT,
+FOREIGN KEY (idGroupe) REFERENCES Groupe(idGroupe),
+FOREIGN KEY (idUtilisateur) REFERENCES Utilisateur(idUtilisateur)
+);
+
+CREATE TABLE Formateur(
+idUtilisateur INT PRIMARY KEY,
+specialite VARCHAR(100),
+matricule VARCHAR(100),
+FOREIGN KEY (idUtilisateur) REFERENCES Utilisateur(idUtilisateur)
+);
+
+CREATE TABLE Administrateur(
+idUtilisateur INT PRIMARY KEY,
+FOREIGN KEY (idUtilisateur) REFERENCES Utilisateur(idUtilisateur)
+);
+
+CREATE TABLE Module(
+idModule INT AUTO_INCREMENT PRIMARY KEY,
+codeModule VARCHAR(50),
+intitule VARCHAR(50),
+description TEXT,
+volumeHoraire INT,
+idUtilisateur INT,
+FOREIGN KEY (idUtilisateur) REFERENCES Utilisateur(idUtilisateur)
+);
+
+CREATE TABLE Programmer(
+idModule INT,
+idGroupe INT,
+PRIMARY KEY (idModule , idGroupe),
+FOREIGN KEY (idModule) REFERENCES Module(idModule),
+FOREIGN KEY (idGroupe) REFERENCES Groupe(idGroupe)
+);
+
+CREATE TABLE Seance(
+idSeance INT AUTO_INCREMENT PRIMARY KEY,
+dateSeance DATETIME,
+typeSeance ENUM('Presential', 'Distencial'),
+idUtilisateur INT,
+idGroupe INT,
+idModule INT,
+FOREIGN KEY (idUtilisateur) REFERENCES Utilisateur(idUtilisateur),
+FOREIGN KEY (idGroupe) REFERENCES Groupe(idGroupe),
+FOREIGN KEY (idModule) REFERENCES Module(idModule)
+);
+
+CREATE TABLE Presence(
+idPresence INT AUTO_INCREMENT PRIMARY KEY,
+statutPresence ENUM('Present', 'Absent'),
+idStagiaire INT,
+idSeance INT,
+FOREIGN KEY (idStagiaire) REFERENCES Stagiaire(idUtilisateur),
+FOREIGN KEY (idSeance) REFERENCES Seance(idSeance)
+);
+
+CREATE TABLE Evaluation(
+idEvaluation INT AUTO_INCREMENT PRIMARY KEY,
+intitule VARCHAR(50),
+idSeance INT,
+FOREIGN KEY (idSeance) REFERENCES Seance(idSeance)
+);
+
+CREATE TABLE Cours(
+idSeance INT PRIMARY KEY,
+titre VARCHAR(50),
+FOREIGN KEY (idSeance) REFERENCES Seance(idSeance)
+);
+
+CREATE TABLE Note(
+idNote INT AUTO_INCREMENT PRIMARY KEY,
+valeur VARCHAR(50),
+idEvaluation INT,
+idStagiaire INT,
+FOREIGN KEY (idEvaluation) REFERENCES Evaluation(idEvaluation),
+FOREIGN KEY (idStagiaire) REFERENCES Stagiaire(idUtilisateur)
+);
